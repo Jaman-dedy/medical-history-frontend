@@ -151,6 +151,49 @@ export interface PractitionerState {
     searchResults: SearchPatientResult[]
     isLoading: boolean
     error: string | null
+    medicalRecords: MedicalRecord[] | null
+}
+
+export interface PatientProfile {
+    id: string
+    dateOfBirth: string
+    bloodType: string
+    emergencyContact: string | null
+    emergencyPhone: string | null
+    firstName: string
+    lastName: string
+    email: string
+}
+
+export interface PatientMedicalSummary {
+    totalAllergies: number
+    activePrescriptions: number
+    pendingLabResults: number
+}
+
+
+export interface MedicalRecordsResponse {
+    summary: PatientMedicalSummary
+    allergies: Allergy[]
+    labOrders: LabOrder[]
+    prescriptions: Prescription[]
+    recentUpdates: Array<{
+        type: 'prescription' | 'labOrder' | 'allergy'
+        id: string
+        [key: string]: any
+    }>
+}
+
+// In types/index.ts
+export interface MedicalRecord {
+    id: string
+    notes: string
+    createdAt: string
+    updatedAt: string
+    deletedAt: string | null
+    allergies: Allergy[]
+    labOrders: LabOrder[]
+    prescriptions: Prescription[]
 }
 
 export interface MedicalRecordActions {
@@ -165,6 +208,7 @@ export interface PatientActions {
     fetchPatientSummary: () => Promise<void>
     searchPatients: (query: string) => Promise<void>
     selectPatient: (patientId: string) => void
+    fetchMedicalRecords: (patientId: string) => Promise<void>  // Add this line
     clearSearchResults: () => void
     clearError: () => void
 }

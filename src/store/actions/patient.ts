@@ -106,5 +106,38 @@ export const createPatientActions: StateCreator<
 
     clearError: () => {
         set({ error: null })
-    }
+    },
+    fetchMedicalRecords: async (patientId) => {
+        set({ isLoading: true, error: null })
+        try {
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/practitioner/patients/${patientId}/medical-records`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${useAuthStore.getState().token}`
+                    }
+                }
+            )
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch medical records')
+            }
+
+            const { data } = await response.json()
+
+            // You might want to store the medical records in the state
+            // You'll need to add a medicalRecords field to PractitionerState
+            set({
+                medicalRecords: data,
+                isLoading: false
+            })
+        } catch (error) {
+            set({
+                error: error instanceof Error ? error.message : 'Failed to fetch medical records',
+                isLoading: false
+            })
+        }
+    },
+
+
 })

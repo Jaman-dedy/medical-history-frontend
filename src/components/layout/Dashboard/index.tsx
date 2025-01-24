@@ -30,7 +30,9 @@ import {
 } from '@heroicons/react/24/outline'
 import { useAuthStore } from '@/store/auth-store'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
+import { usePractitionerStore } from '@/store/practitioner-store'
+import { useToast } from "@/hooks/use-toast"
 
 // Define role-specific navigation
 const practitionerNavigation = [
@@ -51,11 +53,6 @@ const patientNavigation = [
     { name: 'Health Records', href: '/patient/health-records', icon: HeartIcon },
 ]
 
-const userNavigation = [
-    { name: 'Your profile', href: '#' },
-    { name: 'Settings', href: '#' },
-    { name: 'Sign out', href: '#' },
-]
 
 function classNames(...classes: string[]) {
     return classes.filter(Boolean).join(' ')
@@ -70,8 +67,69 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     const pathname = usePathname()
     const { user } = useAuthStore()
 
+    const router = useRouter()
+    const { toast } = useToast()
+    const [searchQuery, setSearchQuery] = useState('')
+    const { searchPatients, searchResults, selectPatient,
+        fetchMedicalRecords } = usePractitionerStore()
+    const { logout } = useAuthStore()
+
     // Get the appropriate navigation based on user role
     const navigation = user?.role === 'practitioner' ? practitionerNavigation : patientNavigation
+
+    const handleSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const query = e.target.value
+        setSearchQuery(query)
+
+        if (query.trim()) {
+            try {
+                await searchPatients(query)
+            } catch (error) {
+                toast({
+                    variant: "destructive",
+                    title: "Search failed",
+                    description: "Failed to search patients. Please try again.",
+                })
+            }
+        }
+    }
+
+    const handleLogout = () => {
+        logout()
+        router.push('/login')
+        toast({
+            title: "Logged out",
+            description: "You have been successfully logged out.",
+        })
+    }
+
+    const userNavigation = [
+        { name: 'Your profile', href: '#' },
+        { name: 'Settings', href: '#' },
+        {
+            name: 'Sign out',
+            href: '#',
+            onClick: handleLogout
+        },
+    ]
+
+    const handlePatientSelect = async (patientId: string) => {
+        try {
+            selectPatient(patientId)
+            await fetchMedicalRecords(patientId)
+            setSearchQuery('')  // Clear the search
+            toast({
+                title: "Patient selected",
+                description: "Successfully loaded patient records.",
+            })
+        } catch (error) {
+            toast({
+                variant: "destructive",
+                title: "Error",
+                description: "Failed to load patient records. Please try again.",
+            })
+        }
+    }
 
     const renderNavigationItem = (item: typeof navigation[0]) => {
         const isActive = pathname === item.href
@@ -185,7 +243,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
                         <div className="flex flex-1 gap-x-4 self-stretch items-center lg:gap-x-6">
                             {user?.role === 'practitioner' ? (
-                                <form className="relative flex flex-1" action="#" method="GET">
+                                <form className="relative flex flex-1" onSubmit={(e) => e.preventDefault()}>
                                     <label htmlFor="search-field" className="sr-only">
                                         Search Patients
                                     </label>
@@ -199,7 +257,32 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                         placeholder="Search patients..."
                                         type="search"
                                         name="search"
+                                        value={searchQuery}
+                                        onChange={handleSearch}
                                     />
+                                    {searchQuery && (
+                                        <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-md shadow-lg py-1 z-50">
+                                            {searchResults.map((patient) => (
+                                                <div
+                                                    key={patient.id}
+                                                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                                    onClick={() => {
+                                                        handlePatientSelect(patient.id)
+                                                        setSearchQuery('')
+                                                    }}
+                                                >
+                                                    <div className="font-medium">{patient.user.firstName} {patient.user.lastName}</div>
+                                                    <div className="text-sm text-gray-500">{patient.dateOfBirth}</div>
+                                                </div>
+                                            ))}
+                                            {searchResults.length === 0 && (
+                                                <div className="px-4 py-2 text-sm text-gray-500">
+                                                    No patients found
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+
                                 </form>
                             ) : (
                                 <div className="flex-1" />
@@ -237,6 +320,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                                             active ? 'bg-gray-50' : '',
                                                             'block px-3 py-1 text-sm leading-6 text-gray-900'
                                                         )}
+                                                        onClick={(e) => {
+                                                            e.preventDefault()
+                                                            item.onClick?.()
+                                                        }}
                                                     >
                                                         {item.name}
                                                     </a>

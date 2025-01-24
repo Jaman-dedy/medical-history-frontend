@@ -1,4 +1,5 @@
-// src/components/patient/MedicalOverview/index.tsx
+// src/components/patient/MedicalOverview.tsx
+import { useRouter } from 'next/navigation'
 import { ShieldAlertIcon, TestTubeIcon, PillIcon, FileTextIcon } from 'lucide-react'
 
 interface OverviewCardProps {
@@ -6,13 +7,15 @@ interface OverviewCardProps {
     description: string
     icon: any
     bgColor: string
-    onClick: () => void
+    href: string
 }
 
-function OverviewCard({ title, description, icon: Icon, bgColor, onClick }: OverviewCardProps) {
+function OverviewCard({ title, description, icon: Icon, bgColor, href }: OverviewCardProps) {
+    const router = useRouter()
+
     return (
         <button
-            onClick={onClick}
+            onClick={() => router.push(href)}
             className={`${bgColor} p-6 rounded-lg text-white hover:opacity-90 transition-opacity`}
         >
             <div className="flex items-start space-x-4">
@@ -34,25 +37,29 @@ export function MedicalOverview() {
             title: 'Allergies',
             description: 'View your allergies and reactions',
             icon: ShieldAlertIcon,
-            bgColor: 'bg-[#1A1433]'
+            bgColor: 'bg-[#1A1433]',
+            href: '/patient/allergies'
         },
         {
             title: 'Lab Results',
             description: 'Check your test results',
             icon: TestTubeIcon,
-            bgColor: 'bg-[#2A2443]'
+            bgColor: 'bg-[#2A2443]',
+            href: '/patient/lab-results'
         },
         {
             title: 'Medications',
             description: 'View current prescriptions',
             icon: PillIcon,
-            bgColor: 'bg-[#382F57]'
+            bgColor: 'bg-[#382F57]',
+            href: '/patient/medications'
         },
         {
             title: 'Documents',
             description: 'Access medical records',
             icon: FileTextIcon,
-            bgColor: 'bg-[#463A6B]'
+            bgColor: 'bg-[#463A6B]',
+            href: '/patient/documents'
         }
     ]
 
@@ -61,11 +68,7 @@ export function MedicalOverview() {
             <h2 className="text-lg font-medium text-gray-900">Medical Overview</h2>
             <div className="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
                 {sections.map((section) => (
-                    <OverviewCard
-                        key={section.title}
-                        {...section}
-                        onClick={() => console.log(`Clicked ${section.title}`)}
-                    />
+                    <OverviewCard key={section.title} {...section} />
                 ))}
             </div>
         </div>

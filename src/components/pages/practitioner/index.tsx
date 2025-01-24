@@ -1,7 +1,6 @@
-// src/app/practitioner/page.tsx
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import { usePractitionerStore } from '@/store/practitioner-store'
 import { useAuthStore } from '@/store/auth-store'
 import { Stats } from './Stats'
@@ -9,13 +8,7 @@ import { QuickActions } from './QuickActions'
 import { RecentPatients } from './RecentPatients'
 import { ActivityTimeline } from './ActivityTimeline'
 import { PatientRecords } from './PatientRecords'
-
-// Add types for activities from the summary endpoint
-interface Activity {
-    type: string
-    date: string
-    description: string
-}
+import { useToast } from "@/hooks/use-toast"
 
 export default function PractitionerDashboard() {
     const { user } = useAuthStore()
@@ -23,17 +16,57 @@ export default function PractitionerDashboard() {
         patients,
         selectedPatient,
         patientSummary,
+        medicalRecords,
         fetchPatients,
         fetchPatientSummary,
+        fetchMedicalRecords,
         selectPatient,
         isLoading,
         error
     } = usePractitionerStore()
 
+    const { toast } = useToast()
+
+    // Fetch patients and summary on mount
     useEffect(() => {
-        fetchPatients()
-        fetchPatientSummary()
-    }, [fetchPatients, fetchPatientSummary])
+        const loadInitialData = async () => {
+            try {
+                await Promise.all([fetchPatients(), fetchPatientSummary()])
+                toast({
+                    title: "Dashboard ready",
+                    description: "Successfully loaded patient data",
+                })
+            } catch (error) {
+                toast({
+                    variant: "destructive",
+                    title: "Error",
+                    description: "Failed to load dashboard data. Please refresh the page.",
+                })
+            }
+        }
+
+        loadInitialData()
+    }, [fetchPatients, fetchPatientSummary, toast])
+
+    // Handle patient selection
+    const handlePatientSelect = async (patientId: string) => {
+        try {
+            selectPatient(patientId)
+            await fetchMedicalRecords(patientId)
+
+            const patient = patients.find(p => p.id === patientId)
+            toast({
+                title: "Records loaded",
+                description: `Successfully loaded medical records for ${patient?.user.firstName} ${patient?.user.lastName}`,
+            })
+        } catch (error) {
+            toast({
+                variant: "destructive",
+                title: "Error",
+                description: "Failed to load patient records. Please try again.",
+            })
+        }
+    }
 
     if (error) {
         return (
@@ -92,13 +125,14 @@ export default function PractitionerDashboard() {
                     <PatientRecords
                         patients={patients}
                         selectedPatient={selectedPatient}
-                        onSelectPatient={selectPatient}
+                        medicalRecords={medicalRecords}
+                        onSelectPatient={handlePatientSelect}
                     />
 
                     {/* Recent Patients */}
                     <RecentPatients
                         patients={patients.slice(0, 5)}
-                        onSelectPatient={selectPatient}
+                        onSelectPatient={handlePatientSelect}
                     />
                 </div>
 

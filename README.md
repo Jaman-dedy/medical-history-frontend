@@ -1,36 +1,204 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🏥 eFiche - Medical Records Management System
 
-## Getting Started
+A modern, responsive web application for managing medical records, built with Next.js 14, TypeScript, and Tailwind CSS.
 
-First, run the development server:
+![Medical Records System](https://img.shields.io/badge/Healthcare-Digital%20Transformation-blue)
+![Next.js](https://img.shields.io/badge/Next.js-14-black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)
+![Tailwind](https://img.shields.io/badge/Tailwind-3.0-38B2AC)
 
+![1737768350747](image/README/1737768350747.png)
+![1737768420163](image/README/1737768420163.png)
+![1737768457845](image/README/1737768457845.png)
+![1737768525644](image/README/1737768525644.png)
+
+## 🌟 Features
+
+### 👨‍⚕️ For Practitioners
+- **Patient Management**
+  - View and search patient lists
+  - Access detailed patient records
+  - Track medical history
+  
+- **Medical Records**
+  - Add and manage allergies
+  - Create lab orders
+  - Record lab results
+  - Manage prescriptions
+
+- **Dashboard Analytics**
+  - Patient statistics
+  - Recent activities
+  - Pending tasks overview
+
+### 👤 For Patients
+- **Personal Health Records**
+  - View medical history
+  - Track current prescriptions
+  - Monitor lab results
+  - Access allergy information
+
+- **User-Friendly Interface**
+  - Intuitive navigation
+  - Real-time updates
+  - Mobile responsive design
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js (v18 or higher)
+- npm or yarn
+- Git
+
+### Installation
+
+1. Clone the repository
+```bash
+git clone git@github.com:Jaman-dedy/medical-history-frontend.git
+cd efiche
+```
+
+2. Install dependencies
+```bash
+npm install
+# or
+yarn install
+```
+
+3. Set up environment variables
+```bash
+cp .env.example .env.local
+```
+Edit `.env.local` with your configuration:
+```env
+NEXT_PUBLIC_API_URL=Dev or hosted uer here
+```
+
+4. Run the development server
 ```bash
 npm run dev
 # or
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Visit `http://localhost:3000` to see the application.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🏗️ Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+src/
+├── app/                    # Next.js app router pages
+│   ├── practitioner/      # Practitioner routes
+│   └── patient/           # Patient routes
+├── components/            # Reusable components
+│   ├── ui/               # UI components (shadcn/ui)
+│   ├── practitioner/     # Practitioner-specific components
+│   └── patient/          # Patient-specific components
+├── store/                # Zustand store
+│   ├── auth-store.ts     # Authentication store
+│   └── patient-store.ts  # Patient data store
+├── types/                # TypeScript type definitions
+└── styles/               # Global styles
+```
 
-## Learn More
+## 🛠️ Built With
 
-To learn more about Next.js, take a look at the following resources:
+- **Framework:** Next.js 14
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS
+- **State Management:** Zustand
+- **UI Components:** shadcn/ui
+- **Icons:** Lucide React
+- **Forms:** React Hook Form
+- **Authentication:** JWT
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🔐 Security Features
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- JWT-based authentication
+- Role-based access control
+- Secure password handling
+- Protected API routes
+- Input validation
 
-## Deploy on Vercel
+## 🔄 State Management
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+We use Zustand for state management with separate stores for:
+- Authentication
+- Patient records
+- Medical data
+- User preferences
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 📱 Responsive Design
+
+The application is fully responsive and works on:
+- 💻 Desktop computers
+- 📱 Mobile phones
+- 📟 Tablets
+- 🖥️ Large screens
+
+## 🧪 Testing
+
+```bash
+# Run unit tests
+npm run test
+
+# Run e2e tests
+npm run test:e2e
+
+# Run linting
+npm run lint
+```
+
+## 🚀 Deployment
+
+1. Build the application
+```bash
+npm run build
+```
+
+2. Start the production server
+```bash
+npm start
+```
+
+## 📖 API Documentation
+
+The frontend communicates with the backend through RESTful APIs:
+
+- `/auth/*` - Authentication endpoints
+- `/practitioner/*` - Practitioner-specific endpoints
+- `/patient/*` - Patient-specific endpoints
+
+For detailed API documentation, refer to the backend repository.
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📜 License
+
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+
+## 👥 Authors
+
+- **JAMAN DEDY* - *Initial work* - [Jaman-dedy](https://github.com/Jaman-dedy)
+
+## 🙏 Acknowledgments
+
+- Shadcn for the amazing UI components
+- Tailwind team for the styling framework
+- React
+- Next.js team for the incredible framework
+- The open-source community
+
+## 📞 Support
+
+For support, email support@efiche.com or join our Slack channel.
+
+---
+
+Made with ❤️ for healthcare professionals and patients

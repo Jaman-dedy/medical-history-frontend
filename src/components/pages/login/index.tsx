@@ -1,136 +1,125 @@
-// src/components/pages/login/index.tsx
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { useAuthStore } from '@/store/auth-store'
-import Image from 'next/image'
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuthStore } from '@/store/auth-store';
+import Image from 'next/image';
+import { AlertCircle, Loader2 } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import MedicalScene from './MedicaIllustration'
+import { Eye, EyeOff } from "lucide-react"
+import './styles.css'
 
 export default function LoginPage() {
-    const router = useRouter()
-    const { login, isLoading, error, user } = useAuthStore()
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
+    const router = useRouter();
+    const { login, isLoading, error, user } = useAuthStore();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false)
 
     useEffect(() => {
         if (user) {
-            router.push(`/${user.role}/`)
+            router.push(`/${user.role}/`);
         }
-    }, [user, router])
+    }, [user, router]);
 
     const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
-        await login({ email, password })
-    }
+        e.preventDefault();
+        await login({ email, password });
+    };
 
     return (
-        <div className="min-h-screen">
-            <div className="flex min-h-screen">
-                {/* Left side - Login Form */}
-                <div className="flex flex-1 flex-col justify-center py-12 px-4 sm:px-6 lg:flex-none lg:px-20 xl:px-24">
-                    <div className="mx-auto w-full max-w-sm lg:w-96">
-                        <div>
-                            <h2 className="mt-6 text-3xl font-bold tracking-tight text-[#1A1433]">eFiche</h2>
-                            <p className="mt-2 text-sm text-gray-600">
-                                Medical History Management System
-                            </p>
-                        </div>
-
-                        <div className="mt-8">
-                            <div className="mt-6">
-                                <form onSubmit={handleSubmit} className="space-y-6">
-                                    <div>
-                                        <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                            Email
-                                        </label>
-                                        <div className="mt-1">
-                                            <input
-                                                id="email"
-                                                name="email"
-                                                type="email"
-                                                required
-                                                value={email}
-                                                onChange={(e) => setEmail(e.target.value)}
-                                                className="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-[#1A1433] focus:outline-none focus:ring-[#1A1433] sm:text-sm"
-                                                placeholder="Enter your email"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                                            Password
-                                        </label>
-                                        <div className="mt-1">
-                                            <input
-                                                id="password"
-                                                name="password"
-                                                type="password"
-                                                required
-                                                value={password}
-                                                onChange={(e) => setPassword(e.target.value)}
-                                                className="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-[#1A1433] focus:outline-none focus:ring-[#1A1433] sm:text-sm"
-                                                placeholder="Enter your password"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    {error && (
-                                        <div className="rounded-md bg-red-50 p-4">
-                                            <div className="text-sm text-red-700">{error}</div>
-                                        </div>
-                                    )}
-
-                                    <div>
-                                        <button
-                                            type="submit"
-                                            disabled={isLoading}
-                                            className="flex w-full justify-center rounded-md border border-transparent bg-[#1A1433] py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-[#2A2443] focus:outline-none focus:ring-2 focus:ring-[#1A1433] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                                        >
-                                            {isLoading ? 'Signing in...' : 'Sign in'}
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
-
-                            <div className="mt-6">
-                                <div className="relative">
-                                    <div className="absolute inset-0 flex items-center">
-                                        <div className="w-full border-t border-gray-300" />
-                                    </div>
-                                    <div className="relative flex justify-center text-sm">
-                                        <span className="bg-white px-2 text-gray-500">Demo accounts</span>
-                                    </div>
-                                </div>
-
-                                <div className="mt-6 grid grid-cols-2 gap-3">
-                                    <div className="rounded-md border border-gray-300 bg-white py-2 px-3">
-                                        <p className="text-sm font-medium text-[#1A1433]">Practitioner</p>
-                                        <p className="text-xs text-gray-500">Email: doc1@example.com</p>
-                                        <p className="text-xs text-gray-500">Password: pass123</p>
-                                    </div>
-                                    <div className="rounded-md border border-gray-300 bg-white py-2 px-3">
-                                        <p className="text-sm font-medium text-[#1A1433]">Patient</p>
-                                        <p className="text-xs text-gray-500">Email: patient1@example.com</p>
-                                        <p className="text-xs text-gray-500">Password: pass123</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+        <div className="min-h-screen flex">
+            {/* Left side - Login Form */}
+            <div className="w-[40%] flex flex-col justify-center px-12 bg-white">
+                <div className="w-full max-w-md mx-auto space-y-8">
+                    <div className="space-y-2">
+                        <h2 className="text-4xl font-bold tracking-tight text-primary">eFiche</h2>
+                        <p className="text-lg text-muted-foreground">
+                            Medical History Management System
+                        </p>
                     </div>
-                </div>
 
-                {/* Right side - Image */}
-                <div className="relative hidden w-0 flex-1 lg:block">
-                    <Image
-                        className="absolute inset-0 h-full w-full object-cover"
-                        src="/assets/medical-login.svg"
-                        alt="Medical office"
-                        fill
-                        priority
-                    />
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="email">Email address</Label>
+                            <Input
+                                id="email"
+                                type="email"
+                                required
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                placeholder="Enter your email"
+                                className="h-11"
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="password">Password</Label>
+                            <div className="relative">
+                                <Input
+                                    id="password"
+                                    type={showPassword ? "text" : "password"}
+                                    required
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    placeholder="Enter your password"
+                                    className="h-11 pr-10"  // Added pr-10 for the icon space
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-gray-500"
+                                >
+                                    {showPassword ? (
+                                        <EyeOff className="h-5 w-5" />
+                                    ) : (
+                                        <Eye className="h-5 w-5" />
+                                    )}
+                                    <span className="sr-only">
+                                        {showPassword ? 'Hide password' : 'Show password'}
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+
+                        {error && (
+                            <Alert variant="destructive">
+                                <AlertCircle className="h-4 w-4" />
+                                <AlertDescription>{error}</AlertDescription>
+                            </Alert>
+                        )}
+
+                        <Button
+                            type="submit"
+                            disabled={isLoading}
+                            className="w-full h-11"
+                        >
+                            {isLoading ? (
+                                <div className="flex items-center justify-center">
+                                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                                    Signing in...
+                                </div>
+                            ) : (
+                                'Sign in'
+                            )}
+                        </Button>
+                    </form>
+
+                    <p className="text-sm text-center text-muted-foreground">
+                        Secure • HIPAA Compliant • Privacy Focused
+                    </p>
                 </div>
             </div>
+
+            {/* Right side - Animated Medical Scene */}
+            <div className="w-[60%]">
+                <MedicalScene />
+            </div>
+
         </div>
-    )
+    );
 }

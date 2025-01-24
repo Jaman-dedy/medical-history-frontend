@@ -2,93 +2,61 @@
 'use client'
 
 import { useEffect } from 'react'
+import { usePatientStore } from '@/store/patient-store'
+import { useToast } from "@/hooks/use-toast"
 import { Stats } from './Stats'
 import { MedicalOverview } from './MedicalOverview'
 import { MedicalTimeline } from './MedicalTimeline'
 
 export default function PatientDashboard() {
-    // Dummy user data
-    const user = {
-        firstName: 'John',
-        lastName: 'Doe'
+    const { toast } = useToast()
+    const {
+        profile,
+        medicalRecords,
+        isLoading,
+        error,
+        fetchProfile,
+        fetchMedicalRecords
+    } = usePatientStore()
+
+    useEffect(() => {
+        const loadData = async () => {
+            try {
+                await Promise.all([fetchProfile(), fetchMedicalRecords()])
+            } catch (error) {
+                toast({
+                    variant: "destructive",
+                    title: "Error",
+                    description: "Failed to load your medical records. Please try again.",
+                })
+            }
+        }
+        loadData()
+    }, [fetchProfile, fetchMedicalRecords, toast])
+
+    if (error) {
+        return (
+            <div className="p-4 text-red-600 bg-red-50 rounded-md">
+                <p>Error: {error}</p>
+                <button
+                    onClick={() => {
+                        fetchProfile()
+                        fetchMedicalRecords()
+                    }}
+                    className="mt-2 text-sm text-red-700 hover:text-red-800"
+                >
+                    Retry
+                </button>
+            </div>
+        )
     }
 
-    // Dummy medical records
-    const medicalRecords = {
-        summary: {
-            totalAllergies: 2,
-            activePrescriptions: 3,
-            pendingLabResults: 1,
-            lastUpdateDays: 2
-        },
-        allergies: [
-            {
-                id: '1',
-                name: 'Penicillin',
-                severity: 'High',
-                reaction: 'Rash and difficulty breathing',
-                notes: 'Avoid all penicillin-based antibiotics',
-                recordedAt: '2024-01-20T09:00:00Z'
-            },
-            {
-                id: '2',
-                name: 'Peanuts',
-                severity: 'Medium',
-                reaction: 'Hives',
-                notes: 'Avoid all peanut products',
-                recordedAt: '2024-01-15T14:30:00Z'
-            }
-        ],
-        prescriptions: [
-            {
-                id: '1',
-                medication: 'Amoxicillin',
-                dosage: '500mg',
-                frequency: 'Twice daily',
-                startDate: '2024-01-24',
-                endDate: '2024-01-31',
-                isActive: true,
-                instructions: 'Take with food',
-                notes: 'For throat infection'
-            },
-            {
-                id: '2',
-                medication: 'Ibuprofen',
-                dosage: '400mg',
-                frequency: 'As needed',
-                startDate: '2024-01-22',
-                isActive: true,
-                instructions: 'Take for pain',
-                notes: 'Maximum 4 times per day'
-            }
-        ],
-        labOrders: [
-            {
-                id: '1',
-                testType: 'Blood Test',
-                status: 'completed',
-                instructions: 'Fasting required',
-                orderedAt: '2024-01-20T10:00:00Z',
-                results: [{
-                    id: '1',
-                    status: 'normal',
-                    data: {
-                        unit: 'mg/dL',
-                        value: '120'
-                    },
-                    interpretation: 'Within normal range',
-                    performedBy: 'Dr. Smith',
-                    resultDate: '2024-01-22T14:00:00Z'
-                }]
-            },
-            {
-                id: '2',
-                testType: 'Chest X-Ray',
-                status: 'pending',
-                instructions: 'Routine checkup',
-                orderedAt: '2024-01-23T15:00:00Z'
-            }
-        ]
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+            </div>
+        )
     }
 
     return (
@@ -96,7 +64,7 @@ export default function PatientDashboard() {
             {/* Welcome Header */}
             <div className="mb-8">
                 <h1 className="text-2xl font-semibold text-gray-900">
-                    Welcome back, {user.firstName}
+                    Welcome back, {profile?.firstName}
                 </h1>
                 <p className="mt-1 text-sm text-gray-500">
                     Here's an overview of your medical records.
@@ -104,7 +72,11 @@ export default function PatientDashboard() {
             </div>
 
             {/* Stats Overview */}
-            <Stats summary={medicalRecords.summary} />
+            <Stats summary={{
+                totalAllergies: medicalRecords?.summary.totalAllergies || 0,
+                activePrescriptions: medicalRecords?.summary.activePrescriptions || 0,
+                pendingLabResults: medicalRecords?.summary.pendingLabResults || 0
+            }} />
 
             {/* Medical Overview */}
             <MedicalOverview />
@@ -113,13 +85,14 @@ export default function PatientDashboard() {
             <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-2">
                 <div className="space-y-8">
                     {/* Allergies Section */}
+                    {/* Allergies Section */}
                     <section className="bg-white shadow-sm rounded-lg overflow-hidden">
                         <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
                             <h3 className="text-lg font-medium text-gray-900">Current Allergies</h3>
                         </div>
                         <div className="px-4 py-5 sm:p-6">
                             <div className="space-y-4">
-                                {medicalRecords.allergies.map((allergy) => (
+                                {medicalRecords?.allergies.map((allergy) => (
                                     <div key={allergy.id} className="border rounded-lg p-4">
                                         <div className="flex justify-between items-start">
                                             <div>
@@ -130,12 +103,25 @@ export default function PatientDashboard() {
                                                     <p className="mt-2 text-sm text-gray-500">{allergy.notes}</p>
                                                 )}
                                             </div>
-                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${allergy.severity === 'High'
+                                                ? 'bg-red-100 text-red-800'
+                                                : allergy.severity === 'Medium'
+                                                    ? 'bg-yellow-100 text-yellow-800'
+                                                    : 'bg-blue-100 text-blue-800'
+                                                }`}>
                                                 {allergy.severity}
                                             </span>
                                         </div>
+                                        <div className="mt-2 text-xs text-gray-500">
+                                            Recorded: {new Date(allergy.recordedAt).toLocaleDateString()}
+                                        </div>
                                     </div>
                                 ))}
+                                {medicalRecords?.allergies.length === 0 && (
+                                    <div className="text-center py-4 text-gray-500">
+                                        No allergies recorded
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </section>
@@ -147,7 +133,7 @@ export default function PatientDashboard() {
                         </div>
                         <div className="px-4 py-5 sm:p-6">
                             <div className="space-y-4">
-                                {medicalRecords.prescriptions.map((prescription) => (
+                                {medicalRecords?.prescriptions.map((prescription) => (
                                     <div key={prescription.id} className="border rounded-lg p-4">
                                         <div className="flex justify-between items-start">
                                             <div>
@@ -182,7 +168,7 @@ export default function PatientDashboard() {
                         </div>
                         <div className="px-4 py-5 sm:p-6">
                             <div className="space-y-6">
-                                {medicalRecords.labOrders.map((order) => (
+                                {medicalRecords?.labOrders.map((order) => (
                                     <div key={order.id} className="border rounded-lg p-4">
                                         <div className="flex justify-between items-start">
                                             <div>
@@ -212,8 +198,9 @@ export default function PatientDashboard() {
                     </section>
 
                     {/* Medical Timeline */}
-                    <MedicalTimeline />
+                    <MedicalTimeline updates={medicalRecords?.recentUpdates || []} />
                 </div>
             </div>
-        </div>)
+        </div>
+    )
 }

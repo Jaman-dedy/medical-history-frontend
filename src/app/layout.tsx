@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { Toaster } from "@/components/ui/toaster"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,6 +16,11 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Medical History Management System",
   description: "Manage patient medical records securely",
+  icons: {
+    icon: "/assets/favicon.ico",
+    apple: "/assets/apple.png",
+  },
+  manifest: "/assets/manifest.json"
 };
 
 export default function RootLayout({
@@ -25,6 +31,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <Toaster />
         {children}
       </body>
     </html>

@@ -9,6 +9,7 @@ export const usePractitionerStore = create<PractitionerStore>()((set, get, store
     selectedPatient: null,
     patientSummary: null,
     searchResults: [],
+    medicalRecords: null,
     isLoading: false,
     error: null,
 

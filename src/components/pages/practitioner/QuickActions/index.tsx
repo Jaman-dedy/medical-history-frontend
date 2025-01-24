@@ -1,4 +1,3 @@
-// src/components/dashboard/QuickActions/index.tsx
 import { useState } from 'react'
 import { PlusIcon, Beaker, FileText, ClipboardList } from 'lucide-react'
 import { QuickActionButton } from './QuickActionButton'
@@ -9,23 +8,8 @@ import { WritePrescriptionDialog } from './WritePrescriptionDialog'
 import { ReviewResultsDialog } from './ReviewResultsDialog'
 
 export function QuickActions() {
-    const defaultPatient = {
-        id: '4b9fa0af-1782-4770-8374-5d8d9d9169fa',
-        // Add other required fields based on your SearchPatientResult type
-        dateOfBirth: '1990-01-01',
-        bloodType: 'A+',
-        user: {
-            id: '1',
-            email: 'test@test.com',
-            firstName: 'Jane',
-            lastName: 'Smith'
-        }
-    }
-
-    // const selectedPatient = usePractitionerStore(state => state.selectedPatient)
-    const selectedPatient = defaultPatient
+    const selectedPatient = usePractitionerStore(state => state.selectedPatient)
     const [dialogOpen, setDialogOpen] = useState<'allergy' | 'labOrder' | 'prescription' | 'results' | null>(null)
-
 
     const actions = [
         {
@@ -33,7 +17,7 @@ export function QuickActions() {
             icon: PlusIcon,
             description: 'Record a new allergy',
             bgColor: 'bg-[#1A1433]',
-            dialogType: 'allergy' as const,  // Add dialogType instead of onClick
+            dialogType: 'allergy' as const,
             disabled: !selectedPatient
         },
         {
@@ -78,27 +62,30 @@ export function QuickActions() {
                 ))}
             </div>
 
-            {/* Dialogs - without the selectedPatient condition */}
-            <AddAllergyDialog
-                open={dialogOpen === 'allergy'}
-                onClose={() => setDialogOpen(null)}
-                patientId={selectedPatient.id}
-            />
-            <CreateLabOrderDialog
-                open={dialogOpen === 'labOrder'}
-                onClose={() => setDialogOpen(null)}
-                patientId={selectedPatient.id}
-            />
-            <WritePrescriptionDialog
-                open={dialogOpen === 'prescription'}
-                onClose={() => setDialogOpen(null)}
-                patientId={selectedPatient.id}
-            />
-            <ReviewResultsDialog
-                open={dialogOpen === 'results'}
-                onClose={() => setDialogOpen(null)}
-                patientId={selectedPatient.id}
-            />
+            {selectedPatient && (
+                <>
+                    <AddAllergyDialog
+                        open={dialogOpen === 'allergy'}
+                        onClose={() => setDialogOpen(null)}
+                        patientId={selectedPatient.id}
+                    />
+                    <CreateLabOrderDialog
+                        open={dialogOpen === 'labOrder'}
+                        onClose={() => setDialogOpen(null)}
+                        patientId={selectedPatient.id}
+                    />
+                    <WritePrescriptionDialog
+                        open={dialogOpen === 'prescription'}
+                        onClose={() => setDialogOpen(null)}
+                        patientId={selectedPatient.id}
+                    />
+                    <ReviewResultsDialog
+                        open={dialogOpen === 'results'}
+                        onClose={() => setDialogOpen(null)}
+                        patientId={selectedPatient.id}
+                    />
+                </>
+            )}
         </div>
     )
 }
